@@ -1,0 +1,10 @@
+import pygame as pg
+pg.init()
+BG_COLOR=(37, 39, 42)
+COLOR_TEXT = (242, 247, 252)
+COLOR_HOVER = (58, 74, 84)
+COLOR_IDLE = (74, 93, 107)
+COLOR_SELECTED = (79, 138, 119)
+COLOR_ERROR = (178, 58, 72)
+COLOR_END_SCREEN_BG = (24, 24, 24)
+NUMBER_FONT = pg.font.Font(None,50)
