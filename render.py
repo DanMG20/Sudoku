@@ -1,15 +1,14 @@
 import pygame as pg 
 import style_settings
-
+from button import Button
 class Render:
     def __init__(self, game , screen ):
         self.game = game 
         self.screen = screen 
         self.square_size = 50
         self.quadrant_size = self.square_size*3
-        self.clock_size = (150,50)
-        
-
+        self.clock_size = (210,60)
+    
     def draw_quadrants(self):
         for row in range(3):
             for column in range(3):
@@ -53,6 +52,8 @@ class Render:
                      color_text = style_settings.COLOR_SELECTED
                 elif square.its_wrong:
                      color_text = style_settings.COLOR_ERROR
+                elif not square.its_fixed: 
+                     color_text = style_settings.COLOR_NOT_FIXED_SQUARE
                 else:
                      color_text = style_settings.COLOR_TEXT
                 text_surface = style_settings.NUMBER_FONT.render(
@@ -70,7 +71,7 @@ class Render:
                     
                 )
                 
-
+    
                 self.screen.blit(text_surface, rect)
 
     def draw_select_square(self):
@@ -133,7 +134,60 @@ class Render:
 
         self.screen.blit(time_surface, rect)
 
-    def draw_end_game(self):
-         self.screen.fill(style_settings.COLOR_END_SCREEN_BG)
+    def draw_screen_buttons(self):
+        for button in self.game.screen_buttons:
+            button.draw(self.screen)
+    def draw_menu_buttons(self):
+        for button in self.game.menu_buttons:
+            button.draw(self.screen)
+    def draw_pause_button(self):
+         self.game.continue_button.draw(self.screen)
 
+    def draw_end_game(self):
+        self.screen.fill(style_settings.COLOR_END_SCREEN_BG)
+        screen_w, screen_h = self.screen.get_size()
+
+        time_string = self.game.get_end_time()
         
+        end_game_string_top = "Resolviste el sudoku!"
+        end_game_string_bottom = f"Solo te tomó {time_string} minutos"
+
+        text_top = style_settings.BUTTON_FONT.render(
+             end_game_string_top, 
+             True, 
+             style_settings.COLOR_TEXT
+             )
+        
+        text_top_rect = text_top.get_rect(center = (screen_w // 2 , screen_h // 3))
+        self.screen.blit(text_top, text_top_rect)
+
+        text_bottom = style_settings.BUTTON_FONT.render(
+             end_game_string_bottom,
+             True,
+             style_settings.COLOR_TEXT
+        )
+
+        text_bottom_rect = text_bottom.get_rect(center = (screen_w // 2 , screen_h // 3 + 50))
+        self.screen.blit(text_bottom, text_bottom_rect)
+
+        new_game_button = Button("Nuevo Juego",screen_w // 3 + 15, screen_h // 2 )
+        new_game_button.draw(self.screen)
+
+    def draw_pause(self):
+        self.screen.fill(style_settings.COLOR_END_SCREEN_BG)
+        screen_w, screen_h = self.screen.get_size()
+        pause_string = "PAUSA"
+
+        pause_text = style_settings.BUTTON_FONT.render(
+             pause_string, 
+             True, 
+             style_settings.COLOR_TEXT
+             )
+        
+        pause_rect = pause_text.get_rect(center = (screen_w // 2 , screen_h // 3))
+        self.screen.blit(pause_text, pause_rect)
+
+        self.draw_pause_button()
+
+    def draw_menu(self):
+         self.draw_menu_buttons()

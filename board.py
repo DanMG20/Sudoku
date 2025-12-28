@@ -9,7 +9,7 @@ class Board:
         self.board = []
         self.board_array_map = self.get_sudoku()
         self.gen_board()
-        
+        self.selected_pos = None
     def is_sudoku_solved(self):
         
         for row in self.board:
@@ -71,7 +71,7 @@ class Board:
         return self.board
 
     def manage_click(self, square_pos):
-        row_board,col_board = square_pos[0], square_pos [1]
+        row_board,col_board = square_pos
 
         for row in self.board: 
             for square in row:
@@ -80,6 +80,7 @@ class Board:
         square = self.board[row_board][col_board]
         if not square.its_fixed:
             square.click()
+            self.selected_pos = row_board,col_board
 
     def set_value(self, key_pressed):
         for row in self.board:
@@ -88,7 +89,7 @@ class Board:
                 if square.clicked and not square.its_fixed:
 
                     if key_pressed == 0:
-                        square.value =0
+                        square.value = 0
                         square.its_hidden = True
                         square.its_wrong = False
                         return 
@@ -102,6 +103,32 @@ class Board:
                         square.value = key_pressed
                         square.its_hidden = False
                         square.its_wrong = True
+
+    def move_selection(self,dx,dy):
+        if self.selected_pos is None: 
+            return 
+        
+        row, col = self.selected_pos 
+        new_row = row + dy
+        new_col = col + dx
+
+        if  not (0 <= new_row <9 and 0 <= new_col <9):
+            return 
+        
+        next_square = self.board[new_row][new_col]
+
+        if next_square.its_fixed:
+            return
+        self.board[row][col].clicked = False
+        next_square.clicked = True 
+        self.selected_pos = (new_row, new_col)
+    def reset_board(self):
+        for row in self.board:
+            for square in row: 
+                if not square.its_fixed:
+                    square.its_hidden = True
+                    square.value = 0 
+
 
             
 

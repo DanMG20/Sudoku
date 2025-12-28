@@ -27,6 +27,7 @@ class SudokuGenerator:
     def __init__(self, difficulty): 
         self.difficulty = difficulty
         self.main_cuadrants = self.gen_diagonal_quadrants()
+        
         self.incomplete_array = self.gen_incomplete_main_array()
         self.solve(self.incomplete_array)
         self.random_pos = self.generate_random_positions()
@@ -131,12 +132,12 @@ class SudokuGenerator:
         """
         Facil = 36 pistas, 45 posiciones vacias
         Normal = 32 pistas, 49 posiciones vacias
-        Díficil = 28 pistas, 53 posiciones vacias
+        Difícil = 28 pistas, 53 posiciones vacias
         """
         difficulty_options = {
             "Fácil": 45,
             "Normal": 49,
-            "Díficil": 53}
+            "Difícil": 53}
         
         count = 0
         for pos in random_filled_positions:
@@ -153,7 +154,3 @@ class SudokuGenerator:
                     self.incomplete_array[row][column] = main_array_copy[row][column]
 
  
-
-Algoritmo1= SudokuGenerator("Díficil")
-
-
