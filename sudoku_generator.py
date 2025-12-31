@@ -30,6 +30,7 @@ class SudokuGenerator:
         
         self.incomplete_array = self.gen_incomplete_main_array()
         self.solve(self.incomplete_array)
+        print(self.incomplete_array)
         self.random_pos = self.generate_random_positions()
         self.unsolve(self.random_pos,self.difficulty)
         

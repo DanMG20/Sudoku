@@ -8,5 +8,8 @@ COLOR_IDLE = (74, 93, 107)
 COLOR_SELECTED = (79, 138, 119)
 COLOR_ERROR = (178, 58, 72)
 COLOR_END_SCREEN_BG = (24, 24, 24)
+
+
 NUMBER_FONT = pg.font.Font(None,50) 
 BUTTON_FONT = pg.font.Font(None,35)
+MENU_FONT = pg.font.Font(None,32)

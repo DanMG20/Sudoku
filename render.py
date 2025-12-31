@@ -169,8 +169,8 @@ class Render:
 
         text_bottom_rect = text_bottom.get_rect(center = (screen_w // 2 , screen_h // 3 + 50))
         self.screen.blit(text_bottom, text_bottom_rect)
-
-        new_game_button = Button("Nuevo Juego",screen_w // 3 + 15, screen_h // 2 )
+        new_game_button = self.game.screen_buttons[0]
+        new_game_button.rect.center = (screen_w // 2, screen_h // 1.5)
         new_game_button.draw(self.screen)
 
     def draw_pause(self):
@@ -190,4 +190,43 @@ class Render:
         self.draw_pause_button()
 
     def draw_menu(self):
-         self.draw_menu_buttons()
+        screen_w, screen_h = self.screen.get_size()
+        sudoku_string = "SUDOKU"
+        second_line_string ="Elige la dificultad para"
+        third_line_string ="continuar"
+
+        sudoku_text = style_settings.NUMBER_FONT.render(
+             sudoku_string, 
+             True, 
+             style_settings.COLOR_TEXT
+             )
+        
+        second_line_text = style_settings.MENU_FONT.render(
+             second_line_string, 
+             True, 
+             style_settings.COLOR_TEXT
+             )
+
+        third_line_text = style_settings.MENU_FONT.render(
+             third_line_string, 
+             True, 
+             style_settings.COLOR_TEXT
+             )
+        
+        
+            
+            
+        
+        sudoku_rect = sudoku_text.get_rect(center = (screen_w // 2 , 20))
+        self.screen.blit(sudoku_text, sudoku_rect)
+
+        second_line_rect = second_line_text.get_rect(center = (screen_w // 2 , 70))
+        self.screen.blit(second_line_text, second_line_rect)
+
+        third_line_rect = third_line_text.get_rect(center = (screen_w // 2 , 100))
+        self.screen.blit(third_line_text, third_line_rect)
+
+
+
+
+        self.draw_menu_buttons()

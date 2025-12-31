@@ -11,7 +11,7 @@ class Game:
         self.difficulty = ""
         self.sudoku_screen = (660,450)
         self.screen = pg.display.set_mode((350,500))
-        pg.display.set_caption("Soduku")
+        pg.display.set_caption("Soduku -- MENU")
         # pygame.display.set_icon(<image>)
         self.event_manager = EventManager(self)
         self.board = None
@@ -63,7 +63,7 @@ class Game:
         ALTO_PANTALLA = self.sudoku_screen[1]
         self.screen = pg.display.set_mode((ANCHO_PANTALLA,ALTO_PANTALLA))
         self.screen.fill(style_settings.BG_COLOR)
-        pg.display.set_caption("Sudoku -- Menu")
+        pg.display.set_caption("Sudoku ")
         self.create_continue_button()
 
     def create_main_buttons(self):
@@ -122,7 +122,6 @@ class Game:
         self.start_time = 0
         self.total_pause_time = 0 
         self.paused_start_time = 0
-       
         self.end_time_string = None
         self.game_over = False
         self.start_time = pg.time.get_ticks()
@@ -173,7 +172,7 @@ class Game:
     
     def create_screen_buttons(self):
                    
-        buttons = {
+        self.buttons = {
             "Nuevo Juego": (self.clock_size[1]+5,
                             self.quadrant_size *3 + 5),
             "Reiniciar": ((self.clock_size[1]+5)*2,
@@ -182,8 +181,8 @@ class Game:
                             self.quadrant_size*3 +5),
                       
         }
-        for button in buttons:
-            new_button = Button(button, buttons[button][0],buttons[button][1]) 
+        for button in self.buttons:
+            new_button = Button(button, self.buttons[button][0],self.buttons[button][1]) 
             self.screen_buttons.append(new_button)
     def create_continue_button(self):
             continue_button = Button("Continuar",self.screen.get_size()[0] // 3 ,self.screen.get_size()[1] // 2)

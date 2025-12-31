@@ -1,4 +1,8 @@
 class Square: 
+    """
+    It Represents a square of sudoku.
+
+    """
     def __init__(self,position,value,its_hidden,its_fixed, its_wrong):
         self.position = position
         self.value = value 
@@ -8,8 +12,6 @@ class Square:
         self.its_wrong = its_wrong 
 
 
-    def was_clicked(self):
-        return self.clicked
     
     def click(self):
         if not self.its_fixed:
