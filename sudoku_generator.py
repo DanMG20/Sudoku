@@ -1,97 +1,105 @@
-from array import array 
-import numpy as np
-import random
-from cuadrante import Cuadrante
-import logging
-"""
+import numpy as np 
+from random import shuffle
 
-Metodo de generacion 
-Funcion de generacion
- 1.-Crea 3 cuadrantes en diagonal de manera aleatoria con numeros del 1 al 9 
- 2.- Los inserta junto con los 9 cuadrantes del tablero de sudoku 
- 3 .- Un algoritmo empieza a generar los numeros faltantes de manera aleatoria pero compliendo
-coon las reglas de sudoku 
-4.- Se obtiene el tablero de juego completo
+class SudokuGenerator:
+    """
+    It Generates a sudoku array that is possible to solve in function on 
+    the difficulty choosed by user.
+    The three difficulty options allowed: 
+        Easy = 36 clues, 45 empty squares
+        Normal = 32 clues, 49 empty squares
+        Hard = 28 clues, 53 empty squares
 
-Funcion de selección de dificultad
-Fácil = Existen 3 maneras iniciales distintas de empezar a solucionar el sudoku 
-Medio = Existen 2 maneras iniciales distintas de empezar a solucionar el sudoku
-Díficil = Existen 1 maneras iniciales distintas de empezar a solucionar el sudoku
-
-1.- El algoritmo inicia a remover numeros hasta que llegue a la dificultad deseada 
- """ 
-
-logger = logging.getLogger(__name__)
-class SudokuGenerator: 
+    """
 
     def __init__(self, difficulty): 
         self.difficulty = difficulty
+        self.difficulty_options = {
+            "Fácil": 45,
+            "Normal": 49,
+            "Difícil": 53}
         self.main_cuadrants = self.gen_diagonal_quadrants()
-        
-        self.incomplete_array = self.gen_incomplete_main_array()
-        self.solve(self.incomplete_array)
-        print(self.incomplete_array)
+        self.sudoku_array = self.gen_sudoku_array()
+        self.solve(self.sudoku_array)
         self.random_pos = self.generate_random_positions()
-        self.unsolve(self.random_pos,self.difficulty)
-        
-        logger.debug("Logica de juego completada") 
+        self.unsolve(self.random_pos,difficulty)
+   
+    def gen_random_order(self):
+        """
+        Generates random order for a quadrant
+        """
+        num_order= [n for n in range(1,10)]
+        shuffle(num_order)
+        return num_order
 
+    def quadrant_gen(self,num_order):
+        """
+        Generates a quadrant with random order.
+        
+        :param num_order: Gets a list of random ordered numbers from 1 to 9
+        """
+        quadrant = np.zeros((3,3), dtype=int)
+        index=0
+        for col in range(3):
+            for row in range(3): 
+                quadrant[row][col] = num_order[index]
+                index +=1
+        return quadrant
         
 
     def gen_diagonal_quadrants(self):
-        logger.debug("Creacion de cuadrantes base iniciada")
-        cuadrantes_principales = []
-        for indice in range(3):
-            cuadrante = Cuadrante()
-            cuadrantes_principales.append(cuadrante)
-        return cuadrantes_principales
+        """
+        Generates the three initial random diagonal quadrants for sudoku.
+        """
+        diagonal_quadrants = []
+        for quad in range(3):
+            quad =  self.quadrant_gen(self.gen_random_order())
+            diagonal_quadrants.append(quad)
+        return diagonal_quadrants
     
-    def gen_incomplete_main_array(self):
-        logger.debug("Creación del array principal completo iniciada")
-        incomplete_array = np.zeros((9,9), dtype = int)
+    def gen_sudoku_array(self):
+        """
+        It Generates the main array of zeros and replace the diagonal quadrants,
+        with the ones created random.
 
-        for num_cuadrante in range(3):
-            if num_cuadrante == 0:
-                initial_position = (0,0)
-                initial_column_position = 0 
-            elif num_cuadrante ==1:
-                initial_position = (3,3)
-                initial_column_position = 3
-            else:
-                initial_position = (6,6)
-                initial_column_position = 6
-    
+        """
+        sudoku_array = np.zeros((9,9), dtype = int)
+
+        for q_index, quadrant in enumerate(self.main_cuadrants):
+            base_row = (q_index // 3 ) * 3 
+            base_col = (q_index % 3 ) * 3 
+
             for row in range(3):
-                for column in range(3): 
-                    incomplete_array[initial_position[0]][initial_position[1]] = self.main_cuadrants[num_cuadrante].cuadrante[row][column]
-                    initial_position = (initial_position[0],initial_position[1]+ 1)
-                initial_position = (initial_position[0]+1,initial_column_position)
-        return incomplete_array
+                for col in range(3):
+                    sudoku_array[base_row + row , base_col + col] = quadrant[row][col]
+
+        return sudoku_array
     
-    def find_empty_box(self, array):
-        for row_index in range(9):
-            for column_index in range(9):
-                if array[row_index][column_index] == 0: 
-                    return (row_index,column_index)
+    def find_empty_square(self, array):
+        for row in range(9):
+            for column in range(9):
+                if array[row][column] == 0: 
+                    return (row,column)
         return None
-    def validate_box(self,row_index,column_index, test_value,array):
-        return (
-            self.validate_row(row_index,test_value,array) and
-            self.validate_column(column_index,test_value,array) and 
-            self.validate_quadrant(row_index,column_index,test_value,array)
-            )
     
-
-    def validate_row(self,row_index,test_value,array): 
-        return test_value not in array[row_index]
+    def validate_row(self,
+                     row,
+                     test_value,
+                     array): 
+        return test_value not in array[row]
     
-    def validate_column(self,column_index, test_value,array):
-        return test_value not in array[:,column_index]
+    def validate_column(self,
+                        col, 
+                        test_value,array):
+        return test_value not in array[:,col]
     
-    def validate_quadrant(self, row_index, column_index, test_value,array):
-        start_row_quadrant = (row_index // 3) * 3
-        start_column_quadrant = (column_index // 3) * 3 
-
+    def validate_quadrant(self, 
+                          row, 
+                          column, 
+                          test_value,array):
+        start_row_quadrant = (row // 3) * 3
+        start_column_quadrant = (column // 3) * 3 
+        
         for row_q in range(3): 
             for column_q in range(3): 
                 if array[start_row_quadrant+row_q][start_column_quadrant+column_q] == test_value:
@@ -99,59 +107,75 @@ class SudokuGenerator:
 
         return True 
     
+
+    def validate_square(self,
+                        row,
+                        column, 
+                        test_value,array):
+        return (
+            self.validate_row(row,test_value,array) and
+            self.validate_column(column,test_value,array) and 
+            self.validate_quadrant(row,column,test_value,array)
+            )
+    
     def solve(self,array):    
-        empty_position = self.find_empty_box(array)
+        """
+        It solves an incomplete array with sudoku rules using recursion
+        and backtraking
+
+        :param array: It gets the array you want to solve
+        """
+        empty_position = self.find_empty_square(array)
         if not empty_position: 
             return True
         
         row_index,column_index = empty_position
 
         for test_number in range (1,10):
-            valid_number = self.validate_box(row_index,column_index,test_number,array)
+            valid_number = self.validate_square(row_index,column_index,test_number,array)
             if valid_number:
                 array[row_index][column_index] = test_number
-
                 if self.solve(array): 
                     return True
-
-                array[row_index][column_index] = 0 
-        
+                array[row_index][column_index] = 0    
         return False
     
+
+
     def generate_random_positions(self): 
         random_filled_positions= []
         for i in range(9):
             for j in range(9): 
                 position = (i,j)
                 random_filled_positions.append(position)
-        random.shuffle(random_filled_positions)
+        shuffle(random_filled_positions)
         return random_filled_positions
 
 
     def unsolve(self,random_filled_positions,difficulty): 
-        main_array_copy = self.incomplete_array.copy()
         """
-        Facil = 36 pistas, 45 posiciones vacias
-        Normal = 32 pistas, 49 posiciones vacias
-        Difícil = 28 pistas, 53 posiciones vacias
+        It takes the sudoku array and unsolves but by checking that solving again is possible,
+        depending on difficulty.
+             
+        :param random_filled_positions: Random square positions to start unsolving
+        :param difficulty: Difficulty choosed by user
         """
-        difficulty_options = {
-            "Fácil": 45,
-            "Normal": 49,
-            "Difícil": 53}
-        
-        count = 0
-        for pos in random_filled_positions:
-            if count <= difficulty_options[difficulty]:
-                row,column = pos
-                
-                self.incomplete_array[row][column] = 0 
-                copy_array = self.incomplete_array.copy()
-                
-                resultado = self.solve(copy_array)
-                if resultado:
-                    count +=1
-                elif not resultado:
-                    self.incomplete_array[row][column] = main_array_copy[row][column]
 
- 
+        sudoku_solved_copy = self.sudoku_array.copy()
+      
+        count = 0
+
+        for pos in random_filled_positions:
+            if count <= self.difficulty_options[difficulty]:
+                row,column = pos
+                self.sudoku_array[row][column] = 0 
+                copy_array = self.sudoku_array.copy()
+                result = self.solve(copy_array)
+
+                if result:
+                    count +=1
+
+                elif not result:
+                    self.sudoku_array[row][column] = sudoku_solved_copy[row][column]
+
+    

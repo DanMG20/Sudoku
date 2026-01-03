@@ -2,13 +2,20 @@ import pygame as pg
 import style_settings
 from button import Button
 class Render:
-    def __init__(self, game , screen ):
-        self.game = game 
+    def __init__(self,game,screen):
+        self.game = game
+        self.gen_fonts()
         self.screen = screen 
         self.square_size = 50
         self.quadrant_size = self.square_size*3
         self.clock_size = (210,60)
-    
+
+        
+    def gen_fonts(self):
+        self.font_number = pg.font.Font(None, style_settings.NUMBER_FONT_SIZE)
+        self.font_button = pg.font.Font(None, style_settings.BUTTON_FONT_SIZE)
+        self.font_menu = pg.font.Font(None, style_settings.MENU_FONT_SIZE)
+
     def draw_quadrants(self):
         for row in range(3):
             for column in range(3):
@@ -21,7 +28,7 @@ class Render:
                     self.quadrant_size,
                     self.quadrant_size
                 )
-                pg.draw.rect(self.screen, style_settings.COLOR_HOVER, quadrant_rect, 3)
+                pg.draw.rect(self.screen, style_settings.COLOR_HOVER_BUTTON, quadrant_rect, 3)
 
     def draw_squares(self,x_screen,y_screen):
 
@@ -32,7 +39,7 @@ class Render:
                     self.square_size,
                     self.square_size
                 )
-                pg.draw.rect(self.screen, style_settings.COLOR_HOVER, cell_rect, 1)
+                pg.draw.rect(self.screen, style_settings.COLOR_HOVER_BUTTON, cell_rect, 1)
   
 
     def draw_sudoku_board(self): 
@@ -46,17 +53,17 @@ class Render:
                 
                 self.draw_squares(x_screen,y_screen)
 
-                if square.its_hidden: 
+                if square.hidden: 
                     continue
-                elif square.clicked: 
+                elif square.selected: 
                      color_text = style_settings.COLOR_SELECTED
-                elif square.its_wrong:
+                elif square.wrong:
                      color_text = style_settings.COLOR_ERROR
-                elif not square.its_fixed: 
+                elif not square.fixed: 
                      color_text = style_settings.COLOR_NOT_FIXED_SQUARE
                 else:
                      color_text = style_settings.COLOR_TEXT
-                text_surface = style_settings.NUMBER_FONT.render(
+                text_surface = self.font_number.render(
                     str(square.value),
                         True ,
                         color_text
@@ -78,7 +85,7 @@ class Render:
         board = self.game.get_board()
         for row in board:
             for square in row:
-                    if square.clicked:
+                    if square.selected:
                             
                         x_screen = square.position[1] * self.square_size
                         y_screen = square.position[0] * self.square_size
@@ -108,14 +115,14 @@ class Render:
         )
         pg.draw.rect(
             self.screen,
-            style_settings.COLOR_HOVER,
+            style_settings.COLOR_HOVER_BUTTON,
             clock_rect,
             2
         )
 
         time_string = self.game.manage_clock()
 
-        time_surface = style_settings.NUMBER_FONT.render(
+        time_surface = self.font_number.render(
              time_string,
              True,
              style_settings.COLOR_TEXT
@@ -152,7 +159,7 @@ class Render:
         end_game_string_top = "Resolviste el sudoku!"
         end_game_string_bottom = f"Solo te tomó {time_string} minutos"
 
-        text_top = style_settings.BUTTON_FONT.render(
+        text_top = style_settings.BUTTON_FONT_SIZE.render(
              end_game_string_top, 
              True, 
              style_settings.COLOR_TEXT
@@ -161,7 +168,7 @@ class Render:
         text_top_rect = text_top.get_rect(center = (screen_w // 2 , screen_h // 3))
         self.screen.blit(text_top, text_top_rect)
 
-        text_bottom = style_settings.BUTTON_FONT.render(
+        text_bottom = style_settings.BUTTON_FONT_SIZE.render(
              end_game_string_bottom,
              True,
              style_settings.COLOR_TEXT
@@ -178,7 +185,7 @@ class Render:
         screen_w, screen_h = self.screen.get_size()
         pause_string = "PAUSA"
 
-        pause_text = style_settings.BUTTON_FONT.render(
+        pause_text = self.game.font_menu.render(
              pause_string, 
              True, 
              style_settings.COLOR_TEXT
@@ -195,27 +202,24 @@ class Render:
         second_line_string ="Elige la dificultad para"
         third_line_string ="continuar"
 
-        sudoku_text = style_settings.NUMBER_FONT.render(
+        sudoku_text = self.font_number.render(
              sudoku_string, 
              True, 
              style_settings.COLOR_TEXT
              )
         
-        second_line_text = style_settings.MENU_FONT.render(
+        second_line_text = self.font_menu.render(
              second_line_string, 
              True, 
              style_settings.COLOR_TEXT
              )
 
-        third_line_text = style_settings.MENU_FONT.render(
+        third_line_text = self.font_menu.render(
              third_line_string, 
              True, 
              style_settings.COLOR_TEXT
              )
         
-        
-            
-            
         
         sudoku_rect = sudoku_text.get_rect(center = (screen_w // 2 , 20))
         self.screen.blit(sudoku_text, sudoku_rect)
@@ -225,8 +229,6 @@ class Render:
 
         third_line_rect = third_line_text.get_rect(center = (screen_w // 2 , 100))
         self.screen.blit(third_line_text, third_line_rect)
-
-
 
 
         self.draw_menu_buttons()

@@ -28,10 +28,11 @@ class Game:
         
         self.screen_buttons = []
         self.clock_size = (150,60)
+        self.square_size = 50
         self.quadrant_size = 150
-        self.create_screen_buttons()
-        self.create_main_buttons()
-        self.create_continue_button()
+        self.gen_screen_buttons()
+        self.create_menu_buttons()
+        self.gen_continue_button()
 
     
 
@@ -42,6 +43,7 @@ class Game:
             self.screen.fill(style_settings.BG_COLOR)
             
             running = self.event_manager.manage_events()
+
             if self.in_menu:
                 self.render.draw_menu()
             else:
@@ -64,9 +66,9 @@ class Game:
         self.screen = pg.display.set_mode((ANCHO_PANTALLA,ALTO_PANTALLA))
         self.screen.fill(style_settings.BG_COLOR)
         pg.display.set_caption("Sudoku ")
-        self.create_continue_button()
+        self.gen_continue_button()
 
-    def create_main_buttons(self):
+    def create_menu_buttons(self):
         easy_button = Button("Fácil",150,0)
         medium_button = Button("Normal",230,0)
         hard_button = Button("Difícil",310,50)
@@ -142,14 +144,13 @@ class Game:
         mouse_position[0] // square_size,
         )
         if square_pos[0]<9 and square_pos[1]<9:
-            self.board.manage_click(square_pos)
+            self.board.select_square(square_pos)
 
     def manage_keyboard(self, key_pressed):
         if self.in_menu or self.board is None:
             return
         
         self.board.set_value(key_pressed)
-
         if self.board.is_sudoku_solved():
             self.game_over = True
             self.end_time_string = self.manage_clock()
@@ -170,7 +171,7 @@ class Game:
     def get_end_time(self):
         return self.end_time_string
     
-    def create_screen_buttons(self):
+    def gen_screen_buttons(self):
                    
         self.buttons = {
             "Nuevo Juego": (self.clock_size[1]+5,
@@ -184,8 +185,17 @@ class Game:
         for button in self.buttons:
             new_button = Button(button, self.buttons[button][0],self.buttons[button][1]) 
             self.screen_buttons.append(new_button)
-    def create_continue_button(self):
+            
+    def gen_continue_button(self):
             continue_button = Button("Continuar",self.screen.get_size()[0] // 3 ,self.screen.get_size()[1] // 2)
             self.continue_button = continue_button
 
-
+    def manage_movement(self,arrow_key):
+        if arrow_key  == "UP": 
+            self.board.move_selection(0,-1)
+        elif arrow_key == "DOWN":
+            self.board.move_selection(0,1)
+        elif arrow_key == "LEFT":
+            self.board.move_selection(-1,0)
+        elif arrow_key == "RIGHT":
+            self.board.move_selection(1,0)
