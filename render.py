@@ -2,19 +2,26 @@ import pygame as pg
 import style_settings
 from button import Button
 class Render:
+    """
+    This class only draws the game, not includes logic
+    """
     def __init__(self,game,screen):
         self.game = game
         self.gen_fonts()
         self.screen = screen 
-        self.square_size = 50
+        self.square_size = self.game.square_size
         self.quadrant_size = self.square_size*3
-        self.clock_size = (210,60)
-
+        self.clock_size = self.game.clock_size
         
     def gen_fonts(self):
         self.font_number = pg.font.Font(None, style_settings.NUMBER_FONT_SIZE)
         self.font_button = pg.font.Font(None, style_settings.BUTTON_FONT_SIZE)
         self.font_menu = pg.font.Font(None, style_settings.MENU_FONT_SIZE)
+    
+    def draw_text_centered(self,text, font, color, center):
+        surface = font.render(text, True , color)
+        rect = surface.get_rect(center=center)
+        self.screen.blit(surface, rect)
 
     def draw_quadrants(self):
         for row in range(3):
@@ -31,77 +38,73 @@ class Render:
                 pg.draw.rect(self.screen, style_settings.COLOR_HOVER_BUTTON, quadrant_rect, 3)
 
     def draw_squares(self,x_screen,y_screen):
+        cell_rect = pg.Rect(
+            x_screen,
+            y_screen,
+            self.square_size,
+            self.square_size
+        )
+        pg.draw.rect(self.screen, style_settings.COLOR_HOVER_BUTTON, cell_rect, 1)
 
+    def select_color_square(self,square):
+        if square.selected: 
+            return style_settings.COLOR_SELECTED
+        elif square.wrong:
+            return  style_settings.COLOR_ERROR
+        elif not square.fixed: 
+            return style_settings.COLOR_NOT_FIXED_SQUARE
+        else:
+            return style_settings.COLOR_TEXT
+        
+    def draw_square(self,square):
+        x_screen = square.position[1] * self.square_size
+        y_screen = square.position[0] * self.square_size
+        
+        self.draw_squares(x_screen,y_screen)
 
-                cell_rect = pg.Rect(
-                    x_screen,
-                    y_screen,
-                    self.square_size,
-                    self.square_size
+        if square.hidden: 
+            return
+        color_text = self.select_color_square(square)
+        self.draw_text_centered(str(square.value),
+                                self.font_number,
+                                color_text,
+                                ( 
+            x_screen+ self.square_size // 2,
+            y_screen+ self.square_size // 2,   
                 )
-                pg.draw.rect(self.screen, style_settings.COLOR_HOVER_BUTTON, cell_rect, 1)
-  
+            )
 
     def draw_sudoku_board(self): 
-
         self.draw_quadrants()
         board =self.game.get_board()
         for row in board:
             for square in row:
-                x_screen = square.position[1] * self.square_size
-                y_screen = square.position[0] * self.square_size
-                
-                self.draw_squares(x_screen,y_screen)
+                self.draw_square(square)
 
-                if square.hidden: 
-                    continue
-                elif square.selected: 
-                     color_text = style_settings.COLOR_SELECTED
-                elif square.wrong:
-                     color_text = style_settings.COLOR_ERROR
-                elif not square.fixed: 
-                     color_text = style_settings.COLOR_NOT_FIXED_SQUARE
-                else:
-                     color_text = style_settings.COLOR_TEXT
-                text_surface = self.font_number.render(
-                    str(square.value),
-                        True ,
-                        color_text
-                        )
-                rect = text_surface.get_rect()
-
+    def draw_selected_square(self):
+        pos = self.game.board.selected_pos
+        if pos is None:
+            return
         
+        row, col = pos
 
-                rect.center = ( 
-                    x_screen+ self.square_size // 2,
-                    y_screen+ self.square_size // 2,
+
+        x_screen = col * self.square_size
+        y_screen = row * self.square_size
                     
+        square_rect = pg.Rect(
+                x_screen,
+                y_screen,
+                self.square_size,
+                self.square_size
+            )
+        
+        pg.draw.rect(
+                self.screen, 
+                style_settings.COLOR_SELECTED, 
+                square_rect,
+                4
                 )
-                
-    
-                self.screen.blit(text_surface, rect)
-
-    def draw_select_square(self):
-        board = self.game.get_board()
-        for row in board:
-            for square in row:
-                    if square.selected:
-                            
-                        x_screen = square.position[1] * self.square_size
-                        y_screen = square.position[0] * self.square_size
-                    
-                        cell_rect = pg.Rect(
-                                x_screen,
-                                y_screen,
-                                self.square_size,
-                                self.square_size
-                            )
-                        pg.draw.rect(
-                                self.screen, 
-                                style_settings.COLOR_SELECTED, 
-                                cell_rect,
-                                4
-                                )
                     
     def draw_clock(self):
         x_screen = self.quadrant_size * 3 
@@ -111,7 +114,6 @@ class Render:
             y_screen,
             self.clock_size[0],
             self.clock_size[1]
-
         )
         pg.draw.rect(
             self.screen,
@@ -122,31 +124,24 @@ class Render:
 
         time_string = self.game.manage_clock()
 
-        time_surface = self.font_number.render(
-             time_string,
-             True,
-             style_settings.COLOR_TEXT
-             )
-        
-        rect = time_surface.get_rect()
-
-        
-
-        rect.center = ( 
+        self.draw_text_centered(time_string,
+                                self.font_number,
+                                style_settings.COLOR_TEXT,
+                                ( 
             x_screen+ self.clock_size[0] // 2,
             y_screen+ self.clock_size[1] // 2,
             
         )
-        
-
-        self.screen.blit(time_surface, rect)
+        )
 
     def draw_screen_buttons(self):
         for button in self.game.screen_buttons:
             button.draw(self.screen)
+
     def draw_menu_buttons(self):
         for button in self.game.menu_buttons:
             button.draw(self.screen)
+
     def draw_pause_button(self):
          self.game.continue_button.draw(self.screen)
 
@@ -159,42 +154,40 @@ class Render:
         end_game_string_top = "Resolviste el sudoku!"
         end_game_string_bottom = f"Solo te tomó {time_string} minutos"
 
-        text_top = style_settings.BUTTON_FONT_SIZE.render(
-             end_game_string_top, 
-             True, 
-             style_settings.COLOR_TEXT
-             )
+
+        self.draw_text_centered(
+            end_game_string_top,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , screen_h // 3)
+            )
+
+        self.draw_text_centered(
+            end_game_string_bottom,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , screen_h // 3 + 50)
+            )
         
-        text_top_rect = text_top.get_rect(center = (screen_w // 2 , screen_h // 3))
-        self.screen.blit(text_top, text_top_rect)
-
-        text_bottom = style_settings.BUTTON_FONT_SIZE.render(
-             end_game_string_bottom,
-             True,
-             style_settings.COLOR_TEXT
-        )
-
-        text_bottom_rect = text_bottom.get_rect(center = (screen_w // 2 , screen_h // 3 + 50))
-        self.screen.blit(text_bottom, text_bottom_rect)
-        new_game_button = self.game.screen_buttons[0]
+        new_game_button = self.game.end_game_button
         new_game_button.rect.center = (screen_w // 2, screen_h // 1.5)
         new_game_button.draw(self.screen)
+
 
     def draw_pause(self):
         self.screen.fill(style_settings.COLOR_END_SCREEN_BG)
         screen_w, screen_h = self.screen.get_size()
         pause_string = "PAUSA"
 
-        pause_text = self.game.font_menu.render(
-             pause_string, 
-             True, 
-             style_settings.COLOR_TEXT
-             )
-        
-        pause_rect = pause_text.get_rect(center = (screen_w // 2 , screen_h // 3))
-        self.screen.blit(pause_text, pause_rect)
+        self.draw_text_centered(
+            pause_string,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , screen_h // 3)
+            )
 
         self.draw_pause_button()
+
 
     def draw_menu(self):
         screen_w, screen_h = self.screen.get_size()
@@ -202,33 +195,25 @@ class Render:
         second_line_string ="Elige la dificultad para"
         third_line_string ="continuar"
 
-        sudoku_text = self.font_number.render(
-             sudoku_string, 
-             True, 
-             style_settings.COLOR_TEXT
-             )
+        self.draw_text_centered(
+            sudoku_string,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , 20)
+            )
         
-        second_line_text = self.font_menu.render(
-             second_line_string, 
-             True, 
-             style_settings.COLOR_TEXT
-             )
+        self.draw_text_centered(
+            second_line_string,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , 70)
+            )
 
-        third_line_text = self.font_menu.render(
-             third_line_string, 
-             True, 
-             style_settings.COLOR_TEXT
-             )
-        
-        
-        sudoku_rect = sudoku_text.get_rect(center = (screen_w // 2 , 20))
-        self.screen.blit(sudoku_text, sudoku_rect)
-
-        second_line_rect = second_line_text.get_rect(center = (screen_w // 2 , 70))
-        self.screen.blit(second_line_text, second_line_rect)
-
-        third_line_rect = third_line_text.get_rect(center = (screen_w // 2 , 100))
-        self.screen.blit(third_line_text, third_line_rect)
-
+        self.draw_text_centered(
+            third_line_string,
+            self.font_menu,
+            style_settings.COLOR_TEXT,
+            (screen_w // 2 , 100)
+            )
 
         self.draw_menu_buttons()

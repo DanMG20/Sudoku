@@ -1,7 +1,6 @@
 from sudoku_generator import SudokuGenerator
 from square import Square
 class Board: 
-
     def __init__(self,difficulty):
         self.difficulty = difficulty
         self.sudoku_gen = SudokuGenerator(self.difficulty)
@@ -134,7 +133,7 @@ class Board:
         for row in self.board:
             for square in row: 
                 if not square.fixed:
-                    square.hidde()
+                    square.hide()
                     square.set_value(0)
                     square.set_not_wrong()
 

@@ -19,6 +19,7 @@ class SudokuGenerator:
             "Normal": 49,
             "Difícil": 53}
         self.main_cuadrants = self.gen_diagonal_quadrants()
+
         self.sudoku_array = self.gen_sudoku_array()
         self.solve(self.sudoku_array)
         self.random_pos = self.generate_random_positions()
@@ -66,8 +67,8 @@ class SudokuGenerator:
         sudoku_array = np.zeros((9,9), dtype = int)
 
         for q_index, quadrant in enumerate(self.main_cuadrants):
-            base_row = (q_index // 3 ) * 3 
-            base_col = (q_index % 3 ) * 3 
+            base_row = (q_index ) * 3 
+            base_col = (q_index ) * 3 
 
             for row in range(3):
                 for col in range(3):
