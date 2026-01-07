@@ -1,6 +1,5 @@
 import pygame as pg 
 import style_settings
-from button import Button
 class Render:
     """
     This class only draws the game, not includes logic

@@ -1,6 +1,8 @@
 import numpy as np 
 from random import shuffle
+from logger_config import setup_logger
 
+logger = setup_logger(__name__)
 class SudokuGenerator:
     """
     It Generates a sudoku array that is possible to solve in function on 
@@ -24,6 +26,7 @@ class SudokuGenerator:
         self.solve(self.sudoku_array)
         self.random_pos = self.generate_random_positions()
         self.unsolve(self.random_pos,difficulty)
+        logger.info(f"Sudoku generated | Difficulty: {self.difficulty}")
    
     def gen_random_order(self):
         """

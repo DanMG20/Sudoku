@@ -5,6 +5,9 @@ from event_manager import EventManager
 from button import Button
 from board import Board
 from render import Render
+from logger_config import setup_logger
+
+logger = setup_logger(__name__)
 
 class Game:
     """
@@ -12,7 +15,7 @@ class Game:
     """
     def __init__(self):
         pg.init()
-
+        logger.info("Game initialized")
         self.difficulty = ""
         self.clock_size = (210,60)
         self.square_size = 50
@@ -57,11 +60,14 @@ class Game:
                 self.render.draw_pause()
             elif self.game_over:
                 self.render.draw_end_game()
-            else:    
+                
+
+            else:
                 self.render.draw_sudoku_board()
                 self.render.draw_selected_square()
                 self.render.draw_clock()
                 self.render.draw_screen_buttons()
+                
               
             pg.display.flip()
             clock.tick(60)
@@ -140,6 +146,7 @@ class Game:
     def handle_button_action(self, button_text):
         if self.in_menu:   
             if button_text:
+                logger.info(f"Difficulty selected: {button_text}")
                 self.difficulty = button_text
                 self.board = Board(self.difficulty)
                 self.in_menu = False
@@ -152,11 +159,13 @@ class Game:
                 self.board_reset()
 
             elif button_text == "Pausa":
+                logger.info("Game paused")
                 self.game_paused = True
                 self.paused_start_time = pg.time.get_ticks()
         
             elif button_text == "Continuar":
-                
+                logger.info("Game resumed")
+
                 if self.game_paused:
                     self.game_paused = False
                     pause_duration = pg.time.get_ticks() - self.paused_start_time
@@ -164,6 +173,7 @@ class Game:
 
             
     def reset_game(self):
+        logger.info("Game reset")
         self.screen = pg.display.set_mode((350,500))
         self.difficulty =""
         self.in_menu = True
@@ -176,6 +186,7 @@ class Game:
 
 
     def board_reset(self):
+        logger.info("Board reset")
         self.board.reset_board()
         self.start_time = pg.time.get_ticks()
         self.total_pause_time = 0 
@@ -197,6 +208,7 @@ class Game:
         
         self.board.set_value(key_pressed)
         if self.board.is_sudoku_solved():
+            logger.info(f"Sudoku solved in {self.end_time_string}")
             self.game_over = True
             self.end_time_string = self.manage_clock()
 

@@ -1,4 +1,7 @@
 /sudoku_env_3.10
 /__pycache__
+/dist
+/build
+Setup_script.iss
+SudokuInstaller.exe
 sudoku.log
-tests.py
