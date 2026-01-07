@@ -2,6 +2,7 @@
 /__pycache__
 /dist
 /build
+/logs
 Setup_script.iss
 SudokuInstaller.exe
 sudoku.log
